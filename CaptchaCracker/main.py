@@ -83,18 +83,20 @@ def prepare_training_set():
         characters = extract_characters(image)
 
         for i in range(len(characters)):
-            training_set.append(characters[i].ravel())
-            training_solution_set.append(solution[i])
+            # only add classes we have not yet had an example before. A little hacky, but minimizes model size
+            if not solution[i] in training_solution_set:
+                training_set.append(characters[i].ravel())
+                training_solution_set.append(solution[i])
 
-    clf = SVC()
+    clf = SVC(C=100, gamma=0.0001)
     clf.fit(training_set, training_solution_set)
     joblib.dump(clf, 'model.pkl', compress=9)
 
 
 def main():
     # uncomment this to create new model
-    # prepare_training_set()
-
+    prepare_training_set()
+    # return
     # load model back
     clf = joblib.load('model.pkl')
 
